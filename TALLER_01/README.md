@@ -1,3 +1,4 @@
+# TALLER 1
 Realizar una base de datos relacional de la imagen adjuntada a continuación, en el cuál aplique los conceptos aprendidos durante la clase sobre **Lenguaje de manipulación de datos** (DML) y  **Lenguaje de definición de datos** (DDL).
 En cuál se le solicita:  
 1. Realizar el diagrama entidad relación.
