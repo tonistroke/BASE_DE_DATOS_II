@@ -18,10 +18,97 @@ Modelo Relacional
 
 Donde las relaciones son:
 - Un usuario tiene un perfil.
-- Un usuario tiene muchos inisio de secion.
+- Un usuario tiene muchos inicio de sesión..
 - Un usuario tiene muchas fidelizaciones.
 - Un usuario tiene muchas participaciones.
 - Una actividad tiene muchas participaciones.
 - Una actividad tiene muchas fidelizaciones.
 
 ## Desarrollo
+Tabla principal `usuario`
+```sql
+CREATE TABLE "usuario" (
+    usuario_id SERIAL UNIQUE,
+    us_nombre VARCHAR(50),
+    us_apellido VARCHAR(50),
+    us_estado BOOL,
+    us_contra VARCHAR(255),
+    us_cargo VARCHAR(50),
+    us_salario DECIMAL(10,2),
+    us_fecha_ingreso DATE,
+    perfil_id INT,
+
+    PRIMARY KEY (usuario_id),
+    FOREIGN KEY (perfil_id) REFERENCES perfil(perfil_id)
+);
+```
+
+Tabla login
+```sql
+CREATE TABLE "login" (
+	login_id SERIAL UNIQUE,
+	usuario_id INT,
+	log_fecha_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+	PRIMARY KEY (login_id),
+	FOREIGN KEY (usuario_id) REFERENCES "usuario"(usuario_id)
+);
+```
+Al insertar un nuevo **inicio de sesión** se guardará en la tabla `login`, el id de usuario junto con la fecha y hora actual.
+
+Stored procedure `nuevo_usuario` la cual funcionara para insertar nuevos usuarios en la base de datos.
+```sql
+CREATE PROCEDURE nuevo_usuario(
+		nombre VARCHAR(50), 
+		apellido VARCHAR(50),
+		estado BOOL,
+		contrasenia VARCHAR(255),
+		cargo VARCHAR(50),
+		salario DECIMAL(10,2),
+		fecha_de_ingreso DATE,
+		perfil INT
+	)
+LANGUAGE 'plpgsql'
+AS $$
+
+BEGIN
+INSERT INTO "usuario" (us_nombre, us_apellido, us_estado, us_contra, us_cargo, us_salario, us_fecha_ingreso, perfil_id) VALUES
+($1, $2, $3, $4, $5, $6, $7, $8);
+END;
+$$;
+```
+
+SP `nuevo_usuario` siendo utilizado para insertar un usuario en la tabla `usuario`
+```sql
+CALL nuevo_usuario('Raquel', 'Diaz', FALSE, 'CONTASENIA_ENCRIPTADA10', 'Administrador', 2600.00, '2019-09-29', 5);
+```
+
+Vistas fidelizados los cuales serán los usuarios con más de 99 puntos
+```sql
+CREATE OR REPLACE VIEW v_fidelizados_anuales AS
+SELECT US.us_nombre AS Nombre, US.us_apellido AS Apellido
+FROM "usuario" US
+INNER JOIN participacion PART ON US.usuario_id = PART.usuario_id
+WHERE EXTRACT(YEAR FROM PART.part_fecha) = EXTRACT(YEAR FROM NOW())
+GROUP BY US.usuario_id
+HAVING SUM(PART.part_puntos) >= 100;
+
+```
+
+Vista para mostrar los inicios de sesión del día:
+```sql
+-- vista de logins del dia
+CREATE OR REPLACE VIEW v_sesiones_del_dia AS
+SELECT 
+    LO.login_id,
+    US.usuario_id,
+    US.us_nombre AS USUARIO,
+    LO.log_fecha_hora AS TIEMPO_DE_LA_SESION
+FROM 
+    login LO
+JOIN usuario US ON LO.usuario_id = US.usuario_id
+WHERE LO.log_fecha_hora >= CURRENT_DATE
+    	AND LO.log_fecha_hora < CURRENT_DATE + INTERVAL '1 day'
+ORDER BY LO.log_fecha_hora
+;
+```
