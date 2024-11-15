@@ -1,7 +1,7 @@
 -- Database: biblioteca;
 -- DROP DATABASE IF EXISTS biblioteca;
 
-CREATE IF NOT EXISTS DATABASE biblioteca;
+-- CREATE IF NOT EXISTS DATABASE biblioteca;
 
 -- DROPPING TABLES DEBUG
 	-- DROP TABLE "estanteria";
@@ -93,7 +93,8 @@ CREATE OR REPLACE FUNCTION insertar_libro(
     p_lib_nombre VARCHAR(100),
     p_lib_autor VARCHAR(100),
     p_lib_genero VARCHAR(50)
-) LANGUAGE 'plpgsql'
+) RETURNS VOID 
+LANGUAGE 'plpgsql'
 AS $$
 BEGIN
     INSERT INTO "libro" (lib_nombre, lib_autor, lib_genero)
@@ -103,7 +104,7 @@ $$;
 -- USO --> SELECT insert_libro('Book Title', 'Author Name', 'Genre');
 
 -- ADMIN SP eliminar libro
-CREATE OR REPLACE FUNCTION delete_libro (p_libro_id INT) 
+CREATE OR REPLACE FUNCTION delete_libro (p_libro_id INT) RETURNS VOID
  LANGUAGE 'plpgsql'
 AS $$
 BEGIN
@@ -120,7 +121,7 @@ RETURNS TABLE (
     libro_id INT,
     lib_nombre VARCHAR,
     lib_autor VARCHAR,
-    lib_genero VARCHARa
+    lib_genero VARCHAR
 ) AS $$
 BEGIN
     RETURN QUERY 
@@ -139,21 +140,21 @@ SELECT us_nombre FROM "usuario";
 -- USO --> SELECT * FROM lista_usuarios;
 
 CREATE VIEW lista_libros AS 
-SELECT lib_nombre, lb_autor, lib_genero FROM "libro";
+SELECT lib_nombre, lib_autor, lib_genero FROM "libro";
 -- USO --> SELECT * FROM lista_libros;
 
 
 -- _____________________________________________ INSERT DATOS _____________________________________________
 
 -- Libros
-SELECT insert_libro('Cien años de soledad', 'Gabriel García Márquez', 'Realismo mágico', '1967-03-30');
-SELECT insert_libro('Don Quijote de la Mancha', 'Miguel de Cervantes', 'Novela picaresca');
-SELECT insert_libro('Rayuela', 'Julio Cortázar', 'Literatura latinoamericana');
-SELECT insert_libro('Los Miserables', 'Victor Hugo', 'Realismo');
-SELECT insert_libro('El Aleph', 'Jorge Luis Borges', 'Cuento fantástico', 'Ficción');
-SELECT insert_libro('El túnel', 'Ernesto Sábato', 'Novela existencialista');
-SELECT insert_libro('La metamorfosis', 'Franz Kafka', 'Existencialismo');
-SELECT insert_libro('One Hundred Years of Solitude', 'Gabriel García Márquez', 'Magical realism');
+SELECT insertar_libro('Cien años de soledad', 'Gabriel García Márquez', 'Realismo mágico');
+SELECT insertar_libro('Don Quijote de la Mancha', 'Miguel de Cervantes', 'Novela picaresca');
+SELECT insertar_libro('Rayuela', 'Julio Cortázar', 'Literatura latinoamericana');
+SELECT insertar_libro('Los Miserables', 'Victor Hugo', 'Realismo');
+SELECT insertar_libro('El Aleph', 'Jorge Luis Borges', 'Ficción');
+SELECT insertar_libro('El túnel', 'Ernesto Sábato', 'Novela existencialista');
+SELECT insertar_libro('La metamorfosis', 'Franz Kafka', 'Existencialismo');
+SELECT insertar_libro('One Hundred Years of Solitude', 'Gabriel García Márquez', 'Magical realism');
 
 -- Usuarios
 -- _____________________________________________ INSERTING DATA _____________________________________________
