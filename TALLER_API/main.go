@@ -7,23 +7,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"api_biblioteca.com/conn_db"
 	"api_biblioteca.com/model"
 	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
-
-// Conexión a la base de datos
-/*
-func initDB() {
-	var err error
-	connStr := "postgres://postgres:@pr-final@localhost:5345/biblioteca?sslmode=disable"
-	db, err = sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-*/
 
 // Insertar usuarioo
 func Insertar_usuarioDB(w http.ResponseWriter, r *http.Request) {
@@ -121,17 +110,7 @@ func librosByGenero(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// __________________________ coneccion BD __________________________
-	connStr := "postgres://postgres:@pr-final@localhost:5432/biblioteca?sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer db.Close()
-
-	if err = db.Ping(); err != nil {
-		log.Fatal(err)
-	}
+	conn_db.InitDB()
 
 	// __________________________ Handle functions __________________________
 	http.HandleFunc("/libros", func(w http.ResponseWriter, r *http.Request) {

@@ -4,15 +4,15 @@
 CREATE IF NOT EXISTS DATABASE biblioteca;
 
 -- DROPPING TABLES DEBUG
-DROP TABLE "estanteria";
-DROP TABLE "calificacion";
-DROP TABLE "usuario";
-DROP TABLE "libro";
+	-- DROP TABLE "estanteria";
+	-- DROP TABLE "calificacion";
+	-- DROP TABLE "usuario";
+	-- DROP TABLE "libro";
 
 -- _____________________________________________ TABLES _____________________________________________
 --DROP TYPE user_rol;
 CREATE TYPE user_rol AS ENUM('lector','admin');
-CREATE TABLE "usuario" (
+CREATE TABLE PUBLIC."usuario" (
 	usuario_id SERIAL UNIQUE, 
 	us_nombre VARCHAR(50),
 	us_rol user_rol DEFAULT 'lector',
@@ -22,7 +22,7 @@ CREATE TABLE "usuario" (
 	PRIMARY KEY (usuario_id)
 );
 
-CREATE TABLE "libro" (
+CREATE TABLE PUBLIC."libro" (
 	libro_id SERIAL UNIQUE,
 	lib_nombre VARCHAR(100),
 	lib_autor VARCHAR(100), 
@@ -33,7 +33,7 @@ CREATE TABLE "libro" (
 
 -- DROP TYPE cal_rating;
 CREATE TYPE cal_rating AS ENUM('Quémenlo!', 'Malo', 'Decente', 'Bueno', 'Exelente');
-CREATE TABLE "calificacion" (
+CREATE TABLE PUBLIC."calificacion" (
 	calificacion_id SERIAL UNIQUE,
 	usuario_id INT,
 	libro_id INT,
@@ -45,7 +45,7 @@ CREATE TABLE "calificacion" (
 	FOREIGN KEY (libro_id) REFERENCES "libro"(libro_id)
 );
 
-CREATE TABLE "estanteria" (
+CREATE TABLE PUBLIC."estanteria" (
 	estanteria_id SERIAL UNIQUE,
 	usuario_id INT,
 	libro_id INT,
@@ -114,28 +114,6 @@ $$;
 -- USO --> SELECT delete_libro(1);
 
 
-
--- _____________________________________________ INSERTING DATA _____________________________________________
--- Insertando usuarios administradores
-INSERT INTO "usuario" (us_nombre, us_rol, us_pass) VALUES
-('toni', 'admin', 'Tpass123'),
-('John', 'admin', 'Jpass'),
-('K', 'admin', 'Kpass')
-;
-
--- _____________________________________________ VIEWS _____________________________________________
-
-
-
--- Vista lista de usuarios
-CREATE VIEW lista_usuarios AS 
-SELECT us_nombre FROM "usuario";
--- USO --> SELECT * FROM lista_usuarios;
-
-CREATE VIEW lista_libros AS 
-SELECT lib_nombre, lb_autor, lib_genero FROM "libro";
--- USO --> SELECT * FROM lista_libros;
-
 -- SP Libros por genero
 CREATE OR REPLACE FUNCTION libros_by_genero(p_lib_genero VARCHAR(50)) 
 RETURNS TABLE (
@@ -151,3 +129,37 @@ BEGIN
     WHERE lib_genero = p_lib_genero;
 END;
 $$ LANGUAGE plpgsql;
+
+
+-- _____________________________________________ VIEWS _____________________________________________
+
+-- Vista lista de usuarios
+CREATE VIEW lista_usuarios AS 
+SELECT us_nombre FROM "usuario";
+-- USO --> SELECT * FROM lista_usuarios;
+
+CREATE VIEW lista_libros AS 
+SELECT lib_nombre, lb_autor, lib_genero FROM "libro";
+-- USO --> SELECT * FROM lista_libros;
+
+
+-- _____________________________________________ INSERT DATOS _____________________________________________
+
+-- Libros
+SELECT insert_libro('Cien años de soledad', 'Gabriel García Márquez', 'Realismo mágico', '1967-03-30');
+SELECT insert_libro('Don Quijote de la Mancha', 'Miguel de Cervantes', 'Novela picaresca');
+SELECT insert_libro('Rayuela', 'Julio Cortázar', 'Literatura latinoamericana');
+SELECT insert_libro('Los Miserables', 'Victor Hugo', 'Realismo');
+SELECT insert_libro('El Aleph', 'Jorge Luis Borges', 'Cuento fantástico', 'Ficción');
+SELECT insert_libro('El túnel', 'Ernesto Sábato', 'Novela existencialista');
+SELECT insert_libro('La metamorfosis', 'Franz Kafka', 'Existencialismo');
+SELECT insert_libro('One Hundred Years of Solitude', 'Gabriel García Márquez', 'Magical realism');
+
+-- Usuarios
+-- _____________________________________________ INSERTING DATA _____________________________________________
+-- Insertando usuarios administradores
+INSERT INTO "usuario" (us_nombre, us_rol, us_pass) VALUES
+('toni', 'admin', 'Tpass123'),
+('John', 'admin', 'Jpass'),
+('K', 'admin', 'Kpass')
+;

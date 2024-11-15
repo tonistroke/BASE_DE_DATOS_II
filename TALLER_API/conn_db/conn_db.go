@@ -1,21 +1,22 @@
-/*
-package conn
+package conn_db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
 )
 
-func initDB() {
-	connStr := "postgres://postgres:@pr-final@localhost:5432/biblioteca?sslmode=disable"
+func InitDB() {
+	connStr := "postgres://postgres:pr-apibiblio@localhost:5432/biblioteca?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
-	defer db.Close()
-
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println("Succesful connection to DB")
+	defer db.Close()
 
 	if err = db.Ping(); err != nil {
 		log.Fatal(err)
